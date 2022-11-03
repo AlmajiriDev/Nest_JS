@@ -2,19 +2,20 @@ import { ForbiddenException, Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "src/entity/user.entity";
 import { MongoRepository } from "typeorm";
-import { UserDto } from "./dto";
+import { UserDto } from "./dto/auth.dto";
 import * as bcrypt from 'bcrypt';
 import { loginDto } from "./dto/login.dto";
 import { JwtService } from "@nestjs/jwt";
 import { JwtStrategy } from "src/strategies/jwt.strategy";
-@Injectable({})
+import { ConfigService } from "@nestjs/config";
+@Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
         private readonly usersRepository: MongoRepository<User>,
         private readonly jwtService: JwtService,
+        private readonly configService: ConfigService,
     ) {}
-
 
     async getProfile(){
         return {
@@ -24,7 +25,8 @@ export class AuthService {
 
     // adding new users
     async signup(userdto: UserDto) {
-        const hashedPassword = await bcrypt.hash(userdto.password, 10)
+        const salt = await bcrypt.genSalt(10)
+        const hashedPassword = await bcrypt.hash(userdto.password, salt)
         const user = await this.create({...userdto, password: hashedPassword})
         delete user.password
         return user
@@ -55,8 +57,6 @@ export class AuthService {
         return {
             "access_token": access_token
         }
-        
-        
     }
     }
 

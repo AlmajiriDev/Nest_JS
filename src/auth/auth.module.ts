@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+// import { ConfigModule, ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
 import { TypeOrmModule } from "@nestjs/typeorm";
@@ -13,7 +14,8 @@ import { jwtConstants } from "./constants";
     imports: [UserModule, TypeOrmModule.forFeature([User]), PassportModule, JwtModule.register({
         secret: jwtConstants.secret,
         signOptions: { expiresIn: '60s' },
-      })],
+      }),
+    ],
     exports: [UserModule, AuthService],
     controllers: [AuthController],
     providers: [AuthService, JwtStrategy],
