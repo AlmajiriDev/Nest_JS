@@ -1,3 +1,4 @@
+import { Exclude } from 'class-transformer';
 import { Entity, ObjectID, ObjectIdColumn, Column } from 'typeorm';
 
 
@@ -9,8 +10,9 @@ export class User {
   
   @Column() firstName: string;
   @Column() lastName: string;
-  @Column() email: string;
+  @Column({unique: true}) email: string;
   @Column() password: string;
+  @Exclude() refreshTOken: String 
   
   constructor(user?: Partial<User>) {
     Object.assign(this, user);
