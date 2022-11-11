@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ConfigModule} from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 // import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
@@ -10,10 +10,10 @@ import { UserModule } from './users/user.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({isGlobal: true}),
     AuthModule, UserModule,
     TypeOrmModule.forRoot(dbConfig()),
     TypeOrmModule.forFeature([User]),
-    ConfigModule.forRoot({isGlobal: true})
 ]
 })
 export class AppModule {

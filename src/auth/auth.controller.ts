@@ -1,11 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, UseGuards} from "@nestjs/common";
 import { AuthService } from "./auth.service";
-import { UserDto } from "./dto/auth.dto";
-import { loginDto } from "./dto/login.dto";
-import { AuthGuard } from "@nestjs/passport";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
-import { LocalAuthGuard } from "src/auth/guards/local-auth-guard";
+import { UserDto } from "./dto/user.dto";
 import { UsersService } from "src/users/user.service";
+import { loginDto } from "./dto/login.dto";
+import { Request } from "express";
+import { AccessTokenGuard } from "./guards/access-token.guard";
+import { RefreshTokenGuard } from "./guards/refreshToken.guard";
 
 
 @Controller('auth')
@@ -14,15 +14,27 @@ export class AuthController {
 
 @Post('signup')
 async signup(@Body() userdto: UserDto){
-        return this.userService.signUpUser(userdto)
+        return this.authService.signUpUser(userdto)
 }
 
-// @UseGuards(LocalAuthGuard)
-@UseGuards(LocalAuthGuard)
 @Post('signin')
- async signin(@Body() loginData: loginDto) {
-         return this.authService.validateUserCredentials(loginData.email, loginData.password)
-  }
+async signin(@Body() loginData: loginDto){
+        return this.authService.validateUserCredentials(loginData)
+}
+
+@UseGuards(AccessTokenGuard)
+@Get('signout')
+async signout(@Req() req: Request){
+        this.authService.signout(req.user['sub'])
+}
+
+@UseGuards(RefreshTokenGuard)
+@Get('refresh')
+refreshTokens(@Req() req: Request) {
+  const id = req.user['sub'];
+  const refreshToken = req.user['refreshToken'];
+  return this.authService.refreshTokens(id, refreshToken);
+}
 
 }
 

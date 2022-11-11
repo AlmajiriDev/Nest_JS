@@ -1,34 +1,40 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import * as bcrypt from 'bcrypt';
-import { UserDto } from "src/auth/dto/auth.dto";
-import { MongoRepository, Repository } from "typeorm";
-import { User } from "../entity/user.entity";
+import { UpdateUserDto } from "src/auth/dto/udpate-user.dto";
+import { FindOneOptions, MongoRepository, ObjectID, Repository } from "typeorm";
+import { UserDto } from "src/auth/dto/user.dto";
+import { User } from "src/entity/user.entity";
+
 
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
-        private usersRepository: MongoRepository<User>
+        private usersRepository: MongoRepository<User>,
     ) {}
-
-    // NEW USER REGISTRATION
-    async signUpUser(userdto: UserDto){
-        const salt = await bcrypt.genSalt(10)
-        const hashedPassword = await bcrypt.hash(userdto.password, 10)
-        const user = await this.create({...userdto, password: hashedPassword})
-        delete user.password
-        return user
-    }
-    async create(userdto: UserDto): Promise<User>{
-        return this.usersRepository.save(userdto)
+    
+    createOauthUser(userdto: UserDto) {
+        return this.usersRepository.save(userdto);
+      }
+    
+    
+    async findOne(params:  FindOneOptions<User>) {
+        return this.usersRepository.findOne(params)
     }
     
 
-
-    async getUserByEmail(email: string): Promise<User> | undefined{
+    async getUserByEmail(email: string): Promise<any> | undefined{
         return await this.usersRepository.findOneBy({email: email})
+    }
+    async getUserById(id: any): Promise<any> | undefined{
+        return await this.usersRepository.findOne(id)
+    }
+
+    async findAndUpdateTokenById(id: any, updateUserDto: UpdateUserDto): Promise<User> {
+            const user =  await this.usersRepository.findOne(id)
+            user.refreshToken = updateUserDto.refreshToken 
+            return await this.usersRepository.save(user)
     }
 }
 

@@ -5,7 +5,7 @@ import { User } from 'src/entity/user.entity';
       export  default function dbConfig(): TypeOrmModuleOptions {
         return {
                 type: 'mongodb',
-                url: "mongodb+srv://Awwal:At3jVr0dDBC2Qg3x@cluster0.oyecd.mongodb.net/user",
+                url: "",
                 database: "user",
                 entities: [User],
                 ssl: true,
